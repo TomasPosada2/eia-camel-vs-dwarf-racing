@@ -56,7 +56,7 @@ Roles are stored as an enum column on `User` rather than a separate `Role` table
 
 | Role | Competitors | Users | Audit log |
 |---|---|---|---|
-| ADMIN | full CRUD | manage (list/get/update role/status) | view |
+| ADMIN | full CRUD | full CRUD (create/list/get/update role/update status/delete) | view |
 | RACE_ORGANIZER | read only | — | — |
 | VIEWER | read only | — | — |
 
