@@ -1,5 +1,6 @@
 package com.eia.racing.controller;
 
+import com.eia.racing.dto.auth.AdminCreateUserRequest;
 import com.eia.racing.dto.auth.UpdateUserRoleRequest;
 import com.eia.racing.dto.auth.UpdateUserStatusRequest;
 import com.eia.racing.dto.auth.UserProfileResponse;
@@ -9,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /** Admin-only user management, required by the "Administrator: Manage users" permission. */
@@ -21,6 +25,17 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @PostMapping
+    public ResponseEntity<UserProfileResponse> createUser(@Valid @RequestBody AdminCreateUserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @AuthenticationPrincipal UserDetails principal) {
+        userService.deleteUser(id, principal.getUsername());
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping
     public ResponseEntity<Page<UserProfileResponse>> listUsers(@PageableDefault(size = 20) Pageable pageable) {
