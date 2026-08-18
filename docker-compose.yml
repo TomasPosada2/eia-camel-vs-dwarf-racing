@@ -1,0 +1,37 @@
+name: eia-racing
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eia-racing-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-racing_db}
+      POSTGRES_USER: ${DB_USERNAME:-racing_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-racing_password}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - racing_postgres_data:/var/lib/postgresql/data
+    networks:
+      - racing_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-racing_user} -d ${DB_NAME:-racing_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# NOTE: this compose file currently only provisions PostgreSQL, so Persona 1's
+# backend can be run locally with `mvn spring-boot:run` against a real database.
+# Persona 3 will extend this file with the backend service (Dockerfile-based),
+# the frontend service and the full application network per the assignment's
+# Docker requirements (`docker compose up -d` must start everything).
+
+volumes:
+  racing_postgres_data:
+    name: racing_postgres_data
+
+networks:
+  racing_network:
+    name: racing_network
+    driver: bridge
