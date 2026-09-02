@@ -18,7 +18,6 @@ public record CompetitorResponse(
         String countryOrigin,
         CompetitorStatus status,
         LocalDate registrationDate,
-        Long teamId,
         int victories,
         int defeats,
         int completedRaces,

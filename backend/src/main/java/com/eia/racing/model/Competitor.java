@@ -53,13 +53,6 @@ public class Competitor {
     @Column(nullable = false, updatable = false)
     private LocalDate registrationDate;
 
-    /**
-     * References Team.id once Persona 2 introduces the Team entity.
-     * Kept as a plain column (no JPA relationship) so this module has no
-     * compile-time dependency on a class that does not exist yet.
-     */
-    private Long teamId;
-
     @Builder.Default
     @Column(nullable = false)
     private int victories = 0;

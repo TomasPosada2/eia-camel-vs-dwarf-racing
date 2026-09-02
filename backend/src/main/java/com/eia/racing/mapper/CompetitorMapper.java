@@ -20,7 +20,6 @@ public class CompetitorMapper {
                 .weight(request.weight())
                 .height(request.height())
                 .countryOrigin(request.countryOrigin())
-                .teamId(request.teamId())
                 .status(CompetitorStatus.ACTIVE)
                 .build();
     }
@@ -34,7 +33,6 @@ public class CompetitorMapper {
         competitor.setWeight(request.weight());
         competitor.setHeight(request.height());
         competitor.setCountryOrigin(request.countryOrigin());
-        competitor.setTeamId(request.teamId());
     }
 
     public CompetitorResponse toResponse(Competitor competitor) {
@@ -50,7 +48,6 @@ public class CompetitorMapper {
                 competitor.getCountryOrigin(),
                 competitor.getStatus(),
                 competitor.getRegistrationDate(),
-                competitor.getTeamId(),
                 competitor.getVictories(),
                 competitor.getDefeats(),
                 competitor.getCompletedRaces(),

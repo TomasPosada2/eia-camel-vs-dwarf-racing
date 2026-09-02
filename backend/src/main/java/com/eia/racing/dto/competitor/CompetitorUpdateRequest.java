@@ -32,8 +32,6 @@ public record CompetitorUpdateRequest(
         @Positive(message = "Height must be a positive number")
         Double height,
 
-        String countryOrigin,
-
-        Long teamId
+        String countryOrigin
 ) {
 }
