@@ -40,6 +40,7 @@ class TeamControllerTest {
 
     @BeforeEach
     void setUpAdmin() throws Exception {
+
         TestAuthHelper.createUser(
                 userRepository,
                 passwordEncoder,
@@ -132,17 +133,17 @@ class TeamControllerTest {
     @Test
     void duplicateMemberInSameTeam_returns409() throws Exception {
 
-        // 1. Crear un equipo
+        // 1. Crear equipo
         String teamResponse = mockMvc.perform(post("/api/teams")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "Duplicate Member Team",
-                                "description": "Team for duplicate member test",
-                                "coach": "Coach Test"
-                            }
-                            """))
+                                {
+                                    "name": "Duplicate Member Team",
+                                    "description": "Team for duplicate member test",
+                                    "coach": "Coach Test"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -153,20 +154,21 @@ class TeamControllerTest {
                 .get("id")
                 .asLong();
 
-        // 2. Crear un competidor
+        // 2. Crear competidor válido
         String competitorResponse = mockMvc.perform(post("/api/competitors")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "Duplicate Camel",
-                                "nickname": "DuplicateCamel",
-                                "competitorType": "CAMEL",
-                                "weight": 480,
-                                "height": 2.1,
-                                "countryOrigin": "Colombia"
-                            }
-                            """))
+                                {
+                                    "name": "Duplicate Camel",
+                                    "nickname": "DuplicateCamel",
+                                    "competitorType": "CAMEL",
+                                    "approximateAge": 8,
+                                    "weight": 480,
+                                    "height": 2.1,
+                                    "countryOrigin": "Colombia"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -177,7 +179,7 @@ class TeamControllerTest {
                 .get("id")
                 .asLong();
 
-        // 3. Agregarlo por primera vez: debe funcionar
+        // 3. Agregarlo por primera vez
         mockMvc.perform(post(
                         "/api/teams/{teamId}/members/{competitorId}",
                         teamId,
@@ -187,7 +189,7 @@ class TeamControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.members.length()").value(1));
 
-        // 4. Intentar agregar el MISMO competidor otra vez
+        // 4. Intentar agregar el mismo competidor nuevamente
         mockMvc.perform(post(
                         "/api/teams/{teamId}/members/{competitorId}",
                         teamId,
@@ -200,17 +202,17 @@ class TeamControllerTest {
     @Test
     void competitorCannotBelongToTwoActiveTeams_returns409() throws Exception {
 
-        // 1. Crear el primer equipo
+        // 1. Crear primer equipo
         String firstTeamResponse = mockMvc.perform(post("/api/teams")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "First Active Team",
-                                "description": "First team",
-                                "coach": "Coach One"
-                            }
-                            """))
+                                {
+                                    "name": "First Active Team",
+                                    "description": "First team",
+                                    "coach": "Coach One"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -221,17 +223,17 @@ class TeamControllerTest {
                 .get("id")
                 .asLong();
 
-        // 2. Crear el segundo equipo
+        // 2. Crear segundo equipo
         String secondTeamResponse = mockMvc.perform(post("/api/teams")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "Second Active Team",
-                                "description": "Second team",
-                                "coach": "Coach Two"
-                            }
-                            """))
+                                {
+                                    "name": "Second Active Team",
+                                    "description": "Second team",
+                                    "coach": "Coach Two"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -242,20 +244,21 @@ class TeamControllerTest {
                 .get("id")
                 .asLong();
 
-        // 3. Crear un competidor
+        // 3. Crear competidor válido
         String competitorResponse = mockMvc.perform(post("/api/competitors")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "Shared Camel",
-                                "nickname": "SharedCamel",
-                                "competitorType": "CAMEL",
-                                "weight": 470,
-                                "height": 2.0,
-                                "countryOrigin": "Colombia"
-                            }
-                            """))
+                                {
+                                    "name": "Shared Camel",
+                                    "nickname": "SharedCamel",
+                                    "competitorType": "CAMEL",
+                                    "approximateAge": 9,
+                                    "weight": 470,
+                                    "height": 2.0,
+                                    "countryOrigin": "Colombia"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -266,7 +269,7 @@ class TeamControllerTest {
                 .get("id")
                 .asLong();
 
-        // 4. Agregar el competidor al primer equipo
+        // 4. Agregarlo al primer equipo
         mockMvc.perform(post(
                         "/api/teams/{teamId}/members/{competitorId}",
                         firstTeamId,

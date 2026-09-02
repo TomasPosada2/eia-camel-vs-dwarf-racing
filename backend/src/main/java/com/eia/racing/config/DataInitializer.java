@@ -9,6 +9,7 @@ import com.eia.racing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,12 +25,23 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
-    private static final String DEFAULT_PASSWORD = "Passw0rd!";
+    private static final Logger log =
+            LoggerFactory.getLogger(DataInitializer.class);
 
     private final UserRepository userRepository;
     private final CompetitorRepository competitorRepository;
     private final PasswordEncoder passwordEncoder;
+
+    /*
+     * Password used only for initial seeded users.
+     *
+     * It can be configured with:
+     * APP_SEED_PASSWORD
+     *
+     * The fallback is intended only for local development.
+     */
+    @Value("${app.seed.password:Passw0rd!}")
+    private String seedPassword;
 
     @Override
     public void run(String... args) {
@@ -38,21 +50,48 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
+
         if (userRepository.count() > 0) {
             return;
         }
 
-        userRepository.save(buildUser("admin@eia.edu.co", "Mr. Abandonado", UserRole.ADMIN));
-        userRepository.save(buildUser("organizer@eia.edu.co", "Race Organizer", UserRole.RACE_ORGANIZER));
-        userRepository.save(buildUser("viewer@eia.edu.co", "Curious Viewer", UserRole.VIEWER));
+        userRepository.save(
+                buildUser(
+                        "admin@eia.edu.co",
+                        "Mr. Abandonado",
+                        UserRole.ADMIN
+                )
+        );
 
-        log.info("Seeded default users (admin/organizer/viewer) with password '{}'", DEFAULT_PASSWORD);
+        userRepository.save(
+                buildUser(
+                        "organizer@eia.edu.co",
+                        "Race Organizer",
+                        UserRole.RACE_ORGANIZER
+                )
+        );
+
+        userRepository.save(
+                buildUser(
+                        "viewer@eia.edu.co",
+                        "Curious Viewer",
+                        UserRole.VIEWER
+                )
+        );
+
+        // Never log passwords or other credentials.
+        log.info("Seeded default users: admin, organizer and viewer");
     }
 
-    private User buildUser(String email, String fullName, UserRole role) {
+    private User buildUser(
+            String email,
+            String fullName,
+            UserRole role
+    ) {
+
         return User.builder()
                 .email(email)
-                .password(passwordEncoder.encode(DEFAULT_PASSWORD))
+                .password(passwordEncoder.encode(seedPassword))
                 .fullName(fullName)
                 .role(role)
                 .enabled(true)
@@ -60,26 +99,92 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedCompetitors() {
+
         if (competitorRepository.count() > 0) {
             return;
         }
 
-        String[] dwarfNicknames = {"Null Pointer", "Stack Overflow", "Little Lambda", "Captain Cache", "Tiny Docker"};
+        String[] dwarfNicknames = {
+                "Null Pointer",
+                "Stack Overflow",
+                "Little Lambda",
+                "Captain Cache",
+                "Tiny Docker"
+        };
+
         for (String nickname : dwarfNicknames) {
-            competitorRepository.save(buildCompetitor(nickname, nickname, CompetitorType.DWARF, 45.0, 1.1, "Colombia"));
+
+            competitorRepository.save(
+                    buildCompetitor(
+                            nickname,
+                            nickname,
+                            CompetitorType.DWARF,
+                            45.0,
+                            1.1,
+                            "Colombia"
+                    )
+            );
         }
 
-        competitorRepository.save(buildCompetitor("Byte", "Byte", CompetitorType.CAMEL, 480.0, 2.1, "Colombia"));
-        competitorRepository.save(buildCompetitor("Segfault", "Segfault", CompetitorType.CAMEL, 500.0, 2.2, "Colombia"));
+        competitorRepository.save(
+                buildCompetitor(
+                        "Byte",
+                        "Byte",
+                        CompetitorType.CAMEL,
+                        480.0,
+                        2.1,
+                        "Colombia"
+                )
+        );
 
-        competitorRepository.save(buildCompetitor("Medium Rare", "MediumRare", CompetitorType.MEDIUM, 150.0, 1.6, "Colombia"));
-        competitorRepository.save(buildCompetitor("Half Stack", "HalfStack", CompetitorType.MEDIUM, 140.0, 1.55, "Colombia"));
+        competitorRepository.save(
+                buildCompetitor(
+                        "Segfault",
+                        "Segfault",
+                        CompetitorType.CAMEL,
+                        500.0,
+                        2.2,
+                        "Colombia"
+                )
+        );
 
-        log.info("Seeded initial competitors: 5 dwarfs, 2 camels, 2 medium competitors");
+        competitorRepository.save(
+                buildCompetitor(
+                        "Medium Rare",
+                        "MediumRare",
+                        CompetitorType.MEDIUM,
+                        150.0,
+                        1.6,
+                        "Colombia"
+                )
+        );
+
+        competitorRepository.save(
+                buildCompetitor(
+                        "Half Stack",
+                        "HalfStack",
+                        CompetitorType.MEDIUM,
+                        140.0,
+                        1.55,
+                        "Colombia"
+                )
+        );
+
+        log.info(
+                "Seeded initial competitors: " +
+                        "5 dwarfs, 2 camels, 2 medium competitors"
+        );
     }
 
-    private Competitor buildCompetitor(String name, String nickname, CompetitorType type,
-                                        double weight, double height, String country) {
+    private Competitor buildCompetitor(
+            String name,
+            String nickname,
+            CompetitorType type,
+            double weight,
+            double height,
+            String country
+    ) {
+
         return Competitor.builder()
                 .name(name)
                 .nickname(nickname)
